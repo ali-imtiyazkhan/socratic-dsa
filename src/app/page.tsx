@@ -6,7 +6,8 @@ import ProblemPanel from '../components/ProblemPanel';
 import CodeEditor from '../components/CodeEditor';
 import Visualizer from '../components/Visualizer';
 import SocraticPanel from '../components/SocraticPanel';
-import { Layout, BrainCircuit, Terminal, Eye, Book } from 'lucide-react';
+import Terminal from '../components/Terminal';
+import { Layout, BrainCircuit, Terminal as TerminalIcon, Eye, Book } from 'lucide-react';
 
 const problems: Problem[] = [
   {
@@ -22,6 +23,8 @@ for (let i = 0; i < nums.length; i++) {
              "We are comparing the current sum with the target.",
              { i, j });
         
+        console.log(\`Searching: index[\${i}]=\${nums[i]}, index[\${j}]=\${nums[j]}, sum=\${nums[i] + nums[j]}\`);
+
         if (nums[i] + nums[j] === target) {
             step("Found it!", "Final result reached.", { i, j });
             return [i, j];
@@ -36,14 +39,25 @@ for (let i = 0; i < nums.length; i++) {
     description: 'Given the head of a singly linked list, reverse the list, and return the reversed list.',
     initialCode: `let prev = null;
 let curr = head;
+let index = 0; // Tracking for visualizer
 
 while (curr !== null) {
-    step("Reversing pointer for current node", "Moving to next node.", { prev, curr });
+    // Add index to node for precision in visualizer
+    curr.index = index++; 
+    
+    step(\`Reversing node with value \${curr.val}\`, 
+         "Point the current node's 'next' to the previous node.", 
+         { prev, curr });
+    
+    console.log(\`Reversing: curr value is \${curr.val}, prev is \${prev ? prev.val : 'NULL'}\`);
+
     let nextTemp = curr.next;
     curr.next = prev;
     prev = curr;
     curr = nextTemp;
 }
+
+step("Finished reversing!", "The list is now reversed.", { prev, curr });
 return prev;`
   }
 ];
@@ -107,15 +121,25 @@ export default function Home() {
         <section className="flex-1 flex flex-col gap-4 overflow-hidden">
             <div className="flex-1 flex flex-col gap-2 min-h-0">
                 <div className="flex items-center gap-2 px-2 text-zinc-500 text-xs font-bold uppercase tracking-widest">
-                    <Terminal size={14} /> Editor
+                    <TerminalIcon size={14} /> Editor
                 </div>
                 <CodeEditor />
             </div>
-            <div className="h-[320px] flex flex-col gap-2 shrink-0">
-                <div className="flex items-center gap-2 px-2 text-zinc-500 text-xs font-bold uppercase tracking-widest">
-                    <Eye size={14} /> Visualization
+            
+            <div className="h-[450px] flex flex-col gap-4 shrink-0">
+                <div className="flex-1 flex flex-col gap-2 min-h-0">
+                    <div className="flex items-center gap-2 px-2 text-zinc-500 text-xs font-bold uppercase tracking-widest">
+                        <Eye size={14} /> Visualization
+                    </div>
+                    <Visualizer />
                 </div>
-                <Visualizer />
+                
+                <div className="h-40 flex flex-col gap-2 shrink-0">
+                    <div className="flex items-center gap-2 px-2 text-zinc-500 text-xs font-bold uppercase tracking-widest">
+                        <TerminalIcon size={14} /> Output
+                    </div>
+                    <Terminal />
+                </div>
             </div>
         </section>
 

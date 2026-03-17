@@ -14,12 +14,48 @@ export default function Visualizer() {
     <div className="flex-1 min-h-[400px] bg-zinc-50 dark:bg-zinc-950 rounded-xl border border-zinc-200 dark:border-zinc-800 p-8 flex flex-col items-center justify-center relative overflow-hidden transition-colors duration-200">
       <div className={`flex ${isLinkedList ? 'gap-12' : 'gap-4'} items-end`}>
         <AnimatePresence>
+          {isLinkedList && (
+            <div className="relative flex items-center">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="w-16 h-16 rounded-lg border-2 border-dashed border-zinc-300 dark:border-zinc-800 flex items-center justify-center text-xs font-mono font-bold text-zinc-400 dark:text-zinc-600 relative"
+              >
+                NULL
+                {/* Pointers to NULL */}
+                <div className="absolute -bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1">
+                  {Object.entries(pointers).filter(([_, val]) => val === null).map(([name]) => (
+                    <motion.div
+                      key={name}
+                      initial={{ y: -10, opacity: 0 }}
+                      animate={{ y: 0, opacity: 1 }}
+                      className="flex flex-col items-center"
+                    >
+                      <div className="w-0.5 h-3 bg-zinc-300 dark:bg-zinc-700 mb-0.5" />
+                      <span className="px-1.5 py-0.5 rounded text-[10px] font-black uppercase tracking-tighter bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400 shadow-sm">
+                        {name}
+                      </span>
+                    </motion.div>
+                  ))}
+                </div>
+              </motion.div>
+              {array.length > 0 && (
+                <div className="absolute left-16 w-12 h-0.5 bg-zinc-200 dark:bg-zinc-800 origin-left border-t border-dashed border-zinc-300 dark:border-zinc-700" />
+              )}
+            </div>
+          )}
+
           {array.map((value, index) => {
             const isHighlighted = highlightedIndices.includes(index);
             const activePointers = Object.entries(pointers).filter(([_, val]) => {
-                // Handle both index pointers (numbers) and node pointers (objects with value)
                 if (typeof val === 'number') return val === index;
-                if (val && typeof val === 'object' && 'val' in val) return val.val === value; // Simple heuristic
+                // For linked lists, we assume the object has a 'val' property matching the array value
+                // and potentially an 'index' property if we want to be precise.
+                if (val && typeof val === 'object' && 'val' in val) {
+                    // If the node has an index property, use it. Otherwise fallback to value comparison.
+                    if ('index' in val) return val.index === index;
+                    return val.val === value;
+                }
                 return false;
             });
 
@@ -31,19 +67,18 @@ export default function Visualizer() {
                       opacity: 1, 
                       scale: 1, 
                       y: 0,
-                      backgroundColor: isHighlighted ? '#3b82f6' : '#ffffff' 
+                      backgroundColor: isHighlighted ? '#3b82f6' : 'transparent' 
                   }}
                   exit={{ opacity: 0, scale: 0.8, y: -20 }}
                   transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                  className={`w-16 h-16 rounded-full shadow-sm border ${
+                  className={`w-16 h-16 rounded-full shadow-sm border transition-colors ${
                     isHighlighted 
-                      ? 'border-blue-500 text-white shadow-blue-500/20' 
-                      : 'border-zinc-200 dark:border-zinc-700 text-zinc-900 dark:text-zinc-100 dark:bg-zinc-900'
+                      ? 'border-blue-500 text-white shadow-blue-500/20 bg-blue-500' 
+                      : 'border-zinc-200 dark:border-zinc-700 text-zinc-900 dark:text-zinc-100 bg-white dark:bg-zinc-900'
                   } flex items-center justify-center text-xl font-bold relative z-10`}
                 >
                   {value}
                   
-                  {/* Visual indicator for index (only for arrays) */}
                   {!isLinkedList && (
                     <div className="absolute -bottom-6 text-xs font-mono text-zinc-400">
                       {index}
@@ -51,19 +86,28 @@ export default function Visualizer() {
                   )}
 
                   {/* Animated Pointers */}
-                  {activePointers.map(([name, _], pIdx) => (
-                    <motion.div
-                      key={name}
-                      initial={{ y: 20, opacity: 0 }}
-                      animate={{ y: 40 + (pIdx * 20), opacity: 1 }}
-                      className="absolute left-1/2 -translate-x-1/2 flex flex-col items-center"
-                    >
-                      <div className="h-4 w-px bg-zinc-400 mb-1" />
-                      <span className="text-sm font-bold text-zinc-500 dark:text-zinc-400 uppercase">
-                        {name}
-                      </span>
-                    </motion.div>
-                  ))}
+                  <div className="absolute -bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1">
+                    <AnimatePresence>
+                        {activePointers.map(([name, _], pIdx) => (
+                            <motion.div
+                                key={name}
+                                initial={{ y: -10, opacity: 0 }}
+                                animate={{ y: 0, opacity: 1 }}
+                                exit={{ y: 10, opacity: 0 }}
+                                className="flex flex-col items-center"
+                            >
+                                <div className="w-0.5 h-3 bg-blue-400/50 mb-0.5" />
+                                <span className={`px-1.5 py-0.5 rounded text-[10px] font-black uppercase tracking-tighter ${
+                                    name === 'curr' || name === 'i' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300' :
+                                    name === 'prev' || name === 'j' ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300' :
+                                    'bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400'
+                                } shadow-sm`}>
+                                    {name}
+                                </span>
+                            </motion.div>
+                        ))}
+                    </AnimatePresence>
+                  </div>
                 </motion.div>
 
                 {/* Arrow for Linked List */}
