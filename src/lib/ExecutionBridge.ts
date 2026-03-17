@@ -95,7 +95,7 @@ export class ExecutionBridge {
                         await new Promise(r => setTimeout(r, 500)); // Pacing
                         break;
                     case 'LOG':
-                        console.log('Worker Log:', data.value);
+                        store.addLog(data.value);
                         break;
                     case 'ERROR':
                         this.onError(data.message);

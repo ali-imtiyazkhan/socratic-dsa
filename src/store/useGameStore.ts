@@ -32,6 +32,8 @@ interface GameStore {
   currentProblem: Problem | null;
   visualization: VisualizationState;
   socraticStep: SocraticStep;
+  stepHistory: SocraticStep[];
+  logs: string[];
   currentStepIndex: number;
   isSimulating: boolean;
   
@@ -39,6 +41,7 @@ interface GameStore {
   setProblem: (problem: Problem) => void;
   updateVisualization: (update: Partial<VisualizationState>) => void;
   setSocraticStep: (step: SocraticStep) => void;
+  addLog: (log: string) => void;
   runSimulation: (code?: string) => void;
   resetSimulation: () => void;
 }
@@ -80,6 +83,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
   currentProblem: null,
   visualization: initialVisualization,
   socraticStep: initialSocratic,
+  stepHistory: [],
+  logs: [],
   currentStepIndex: -1,
   isSimulating: false,
 
@@ -95,6 +100,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
             doing: `Solving ${problem.title}`,
             next: "Analyze the input and think about the brute force approach."
         },
+        stepHistory: [],
+        logs: [],
         currentStepIndex: -1,
         isSimulating: false
     });
@@ -104,13 +111,18 @@ export const useGameStore = create<GameStore>((set, get) => ({
     visualization: { ...state.visualization, ...update }
   })),
 
-  setSocraticStep: (step) => set({ socraticStep: step }),
+  setSocraticStep: (step) => set((state) => ({ 
+    socraticStep: step,
+    stepHistory: [...state.stepHistory, step]
+  })),
+
+  addLog: (log) => set((state) => ({ logs: [...state.logs, log] })),
 
   runSimulation: async (code?: string) => {
     const { currentProblem, isSimulating } = get();
     if (!currentProblem || isSimulating) return;
 
-    set({ isSimulating: true });
+    set({ isSimulating: true, logs: [], stepHistory: [] });
 
     if (code) {
         // Dynamic Execution Phase
@@ -191,6 +203,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
     visualization: { ...initialVisualization, array: get().currentProblem?.id === 'two-sum' ? [2, 7, 11, 15] : [] },
     currentStepIndex: -1,
     isSimulating: false,
-    socraticStep: initialSocratic
+    socraticStep: initialSocratic,
+    stepHistory: [],
+    logs: []
   }),
 }));
