@@ -7,6 +7,7 @@ import { Play } from 'lucide-react';
 
 export default function CodeEditor() {
   const { currentProblem, runSimulation, isSimulating } = useGameStore();
+  const editorRef = React.useRef<any>(null);
 
   if (!currentProblem) {
     return (
@@ -14,6 +15,10 @@ export default function CodeEditor() {
         // Start a problem to begin coding.
       </div>
     );
+  }
+
+  function handleEditorDidMount(editor: any) {
+    editorRef.current = editor;
   }
 
   return (
@@ -25,7 +30,10 @@ export default function CodeEditor() {
             <div className="w-3 h-3 rounded-full bg-emerald-400/80" />
         </div>
         <button 
-          onClick={() => runSimulation()}
+          onClick={() => {
+            const code = editorRef.current?.getValue();
+            runSimulation(code);
+          }}
           disabled={isSimulating}
           className={`flex items-center gap-2 px-4 py-1.5 ${isSimulating ? 'bg-zinc-700' : 'bg-blue-600 hover:bg-blue-700'} text-white rounded-md text-sm font-semibold transition-colors shadow-lg active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed`}
         >
@@ -35,9 +43,11 @@ export default function CodeEditor() {
       </div>
       <div className="flex-1">
         <Editor
+          key={currentProblem.id}
           height="100%"
           defaultLanguage="javascript"
           defaultValue={currentProblem.initialCode}
+          onMount={handleEditorDidMount}
           theme="vs-dark"
           options={{
             minimap: { enabled: false },
