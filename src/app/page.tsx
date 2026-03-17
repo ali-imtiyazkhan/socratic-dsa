@@ -13,15 +13,38 @@ const problems: Problem[] = [
     id: 'two-sum',
     title: 'Two Sum',
     difficulty: 'Easy',
-    description: 'Given an array of integers nums and an integer target, return indices of the two numbers such that they add up to target. You may assume that each input would have exactly one solution, and you may not use the same element twice.',
-    initialCode: '/**\n * @param {number[]} nums\n * @param {number} target\n * @return {number[]}\n */\nvar twoSum = function(nums, target) {\n    // Write your code here\n};'
+    description: 'Given an array of integers nums and an integer target, return indices of the two numbers such that they add up to target.',
+    initialCode: `// nums and target are provided!
+for (let i = 0; i < nums.length; i++) {
+    for (let j = i + 1; j < nums.length; j++) {
+        // Update Socratic Aide and Pointers!
+        step(\`Checking if \${nums[i]} + \${nums[j]} = \${target}\`, 
+             "We are comparing the current sum with the target.",
+             { i, j });
+        
+        if (nums[i] + nums[j] === target) {
+            step("Found it!", "Final result reached.", { i, j });
+            return [i, j];
+        }
+    }
+}`
   },
   {
-    id: 'valid-anagram',
-    title: 'Valid Anagram',
+    id: 'reverse-linked-list',
+    title: 'Reverse Linked List',
     difficulty: 'Easy',
-    description: 'Given two strings s and t, return true if t is an anagram of s, and false otherwise. An Anagram is a word or phrase formed by rearranging the letters of a different word or phrase, typically using all the original letters exactly once.',
-    initialCode: '/**\n * @param {string} s\n * @param {string} t\n * @return {boolean}\n */\nvar isAnagram = function(s, t) {\n    \n};'
+    description: 'Given the head of a singly linked list, reverse the list, and return the reversed list.',
+    initialCode: `let prev = null;
+let curr = head;
+
+while (curr !== null) {
+    step("Reversing pointer for current node", "Moving to next node.", { prev, curr });
+    let nextTemp = curr.next;
+    curr.next = prev;
+    prev = curr;
+    curr = nextTemp;
+}
+return prev;`
   }
 ];
 
