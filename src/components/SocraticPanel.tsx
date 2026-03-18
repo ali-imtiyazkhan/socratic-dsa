@@ -23,7 +23,7 @@ export default function SocraticPanel() {
   };
 
   return (
-    <div className="flex flex-col h-full bg-white dark:bg-zinc-950 rounded-xl border border-zinc-200 dark:border-zinc-800 shadow-sm overflow-hidden">
+    <div className="flex flex-col h-full panel-card rounded-2xl overflow-hidden shadow-2xl transition-all duration-300">
       {/* Current Step Banner */}
       <div className="p-4 bg-blue-50/50 dark:bg-blue-900/10 border-b border-blue-100 dark:border-blue-900/20 shrink-0">
         <div className="flex items-center gap-2 mb-1">
@@ -59,10 +59,10 @@ export default function SocraticPanel() {
                 </span>
               </div>
               
-              <div className={`max-w-[90%] px-4 py-2.5 rounded-2xl text-sm ${
+              <div className={`max-w-[85%] px-4 py-3 rounded-2xl text-sm transition-all ${
                 msg.role === 'user' 
-                  ? 'bg-zinc-900 dark:bg-zinc-100 text-white dark:text-black rounded-tr-none' 
-                  : 'bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-800 dark:text-zinc-200 rounded-tl-none shadow-sm'
+                  ? 'bg-blue-600 text-white rounded-tr-none shadow-lg shadow-blue-500/20 font-medium' 
+                  : 'bg-zinc-900 border border-zinc-800 text-zinc-200 rounded-tl-none shadow-sm'
               }`}>
                 {msg.content}
               </div>

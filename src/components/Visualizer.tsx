@@ -6,13 +6,90 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 export default function Visualizer() {
   const { visualization, currentProblem } = useGameStore();
-  const { array, pointers, highlightedIndices } = visualization;
+  const { array, pointers, highlightedIndices, tree, highlightedNodes } = visualization;
   
   const isLinkedList = currentProblem?.id === 'reverse-linked-list';
+  const isTree = currentProblem?.id === 'binary-tree-inorder';
+
+  const renderLines = (n: any, currX: number, currY: number, l: number) => {
+    if (!n) return null;
+    const hSpace = 200 / Math.pow(1.5, l);
+    const vSpace = 80;
+    return (
+        <React.Fragment key={`lines-${n.id}`}>
+            {n.left && (
+                <>
+                <motion.line
+                    initial={{ pathLength: 0, opacity: 0 }}
+                    animate={{ pathLength: 1, opacity: 1 }}
+                    x1={currX} y1={currY} x2={currX - hSpace} y2={currY + vSpace}
+                    stroke="currentColor" strokeWidth="2" className="text-zinc-200 dark:text-zinc-800"
+                />
+                {renderLines(n.left, currX - hSpace, currY + vSpace, l + 1)}
+                </>
+            )}
+            {n.right && (
+                <>
+                <motion.line
+                    initial={{ pathLength: 0, opacity: 0 }}
+                    animate={{ pathLength: 1, opacity: 1 }}
+                    x1={currX} y1={currY} x2={currX + hSpace} y2={currY + vSpace}
+                    stroke="currentColor" strokeWidth="2" className="text-zinc-200 dark:text-zinc-800"
+                />
+                {renderLines(n.right, currX + hSpace, currY + vSpace, l + 1)}
+                </>
+            )}
+        </React.Fragment>
+    );
+  };
+
+  const renderNodes = (n: any, currX: number, currY: number, l: number) => {
+    if (!n) return null;
+    const hSpace = 200 / Math.pow(1.5, l);
+    const vSpace = 80;
+    const isHtd = highlightedNodes.includes(n.id);
+    return (
+        <React.Fragment key={`node-${n.id}`}>
+            <motion.div
+                layout
+                initial={{ scale: 0, opacity: 0 }}
+                animate={{ 
+                    scale: 1, opacity: 1,
+                    backgroundColor: isHtd ? '#3b82f6' : 'transparent',
+                    borderColor: isHtd ? '#3b82f6' : 'currentColor'
+                }}
+                style={{ left: currX - 24, top: currY - 24, position: 'absolute' }}
+                className={`w-12 h-12 rounded-full border-2 flex items-center justify-center font-bold z-10 transition-colors ${
+                    isHtd ? 'text-white shadow-lg shadow-blue-500/50' : 'bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 border-zinc-200 dark:border-zinc-800'
+                }`}
+            >
+                {n.val}
+            </motion.div>
+            {renderNodes(n.left, currX - hSpace, currY + vSpace, l + 1)}
+            {renderNodes(n.right, currX + hSpace, currY + vSpace, l + 1)}
+        </React.Fragment>
+    );
+  };
 
   return (
-    <div className="flex-1 min-h-[400px] bg-zinc-50 dark:bg-zinc-950 rounded-xl border border-zinc-200 dark:border-zinc-800 p-8 flex flex-col items-center justify-center relative overflow-hidden transition-colors duration-200">
-      <div className={`flex ${isLinkedList ? 'gap-12' : 'gap-4'} items-end`}>
+    <div className="flex-1 min-h-[400px] panel-card rounded-2xl p-8 flex flex-col items-center justify-center relative overflow-hidden transition-all duration-500">
+      {isTree && tree ? (
+        <div className="relative w-full h-full flex items-center justify-center p-10">
+            <div className="relative w-full h-[400px]">
+                {/* Positioning root at top center */}
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full">
+                    <svg className="absolute inset-0 w-full h-full pointer-events-none overflow-visible">
+                        {renderLines(tree, 0, 0, 0)}
+                    </svg>
+                    <div className="absolute inset-0">
+                        {renderNodes(tree, 0, 0, 0)}
+                    </div>
+                </div>
+            </div>
+        </div>
+      ) : (
+        <div className={`flex ${isLinkedList ? 'gap-12' : 'gap-4'} items-end`}>
+            {/* ... rest of the original array/linked list logic ... */}
         <AnimatePresence>
           {isLinkedList && (
             <div className="relative flex items-center">
@@ -129,9 +206,10 @@ export default function Visualizer() {
           })}
         </AnimatePresence>
       </div>
+      )}
 
-      {array.length === 0 && (
-        <div className="text-zinc-400 italic">
+      {!isTree && array.length === 0 && (
+        <div className="text-zinc-400 italic z-20">
           No data structure initialized. Select a problem to begin.
         </div>
       )}

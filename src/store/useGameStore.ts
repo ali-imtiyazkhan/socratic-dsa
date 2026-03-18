@@ -9,10 +9,19 @@ export interface Problem {
   initialCode: string;
 }
 
+export interface TreeNode {
+  val: number;
+  left: TreeNode | null;
+  right: TreeNode | null;
+  id?: string; // For React keys and animation
+}
+
 export interface VisualizationState {
   array: number[];
+  tree: TreeNode | null; // For new Tree problems
   pointers: Record<string, any>;
-  highlightedIndices: number[];
+  highlightedIndices: number[]; // For arrays
+  highlightedNodes: string[]; // For trees (node IDs)
   activeStepIndex: number;
 }
 
@@ -59,8 +68,10 @@ interface GameStore {
 
 const initialVisualization: VisualizationState = {
   array: [],
+  tree: null,
   pointers: {},
   highlightedIndices: [],
+  highlightedNodes: [],
   activeStepIndex: 0,
 };
 
@@ -107,15 +118,29 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
   setProblem: (problem) => {
     let initialArray: number[] = [];
+    let initialTree: TreeNode | null = null;
+    
     if (problem.id === 'two-sum') initialArray = [2, 7, 11, 15];
     if (problem.id === 'reverse-linked-list') initialArray = [1, 2, 3, 4, 5];
+    if (problem.id === 'binary-tree-inorder') {
+        // Build a simple tree: [1, null, 2, 3]
+        initialTree = {
+            val: 1, id: 'n1',
+            left: null,
+            right: {
+                val: 2, id: 'n2',
+                left: { val: 3, id: 'n3', left: null, right: null },
+                right: null
+            }
+        };
+    }
 
     set({ 
         currentProblem: problem,
-        visualization: { ...initialVisualization, array: initialArray },
+        visualization: { ...initialVisualization, array: initialArray, tree: initialTree },
         socraticStep: {
             doing: `Solving ${problem.title}`,
-            next: "Analyze the input and think about the brute force approach."
+            next: problem.id === 'binary-tree-inorder' ? "Think about the recursive steps: Left, Root, Right." : "Analyze the input and think about the brute force approach."
         },
         stepHistory: [],
         chatHistory: [{
@@ -165,16 +190,20 @@ export const useGameStore = create<GameStore>((set, get) => ({
         let aideResponse = "That's an interesting thought. How do you think that relates to our current step of " + socraticStep.doing.toLowerCase() + "?";
         
         const q = query.toLowerCase();
-        if (q.includes("why") || q.includes("reason")) {
-            aideResponse = `We are doing this because: ${socraticStep.doing}. Think about what happens if we don't do this step. What state would our variables be in?`;
-        } else if (q.includes("hint") || q.includes("help")) {
-            aideResponse = `Here's a small nudge: ${socraticStep.next}. Try to visualize the data moving in your mind.`;
-        } else if (q.includes("pointer") || q.includes("i") || q.includes("j")) {
-            const pointers = Object.entries(visualization.pointers)
-                .map(([name, val]) => `${name} is at index ${val}`)
-                .join(", ");
-            aideResponse = `Let's look at the pointers. Currently, ${pointers}. Does their position match what you'd expect for this algorithm?`;
-        }
+            if (q.includes("why") || q.includes("reason")) {
+                aideResponse = `We are doing this because: ${socraticStep.doing}. Think about what happens if we don't do this step. What state would our variables be in?`;
+            } else if (q.includes("hint") || q.includes("help")) {
+                aideResponse = `Here's a small nudge: ${socraticStep.next}. Try to visualize the data moving in your mind.`;
+            } else if (q.includes("pointer") || q.includes("i") || q.includes("j")) {
+                const pointers = Object.entries(visualization.pointers)
+                    .map(([name, val]) => `${name} is at index ${val}`)
+                    .join(", ");
+                aideResponse = `Let's look at the pointers. Currently, ${pointers}. Does their position match what you'd expect for this algorithm?`;
+            } else if (q.includes("recursion") || q.includes("call stack") || q.includes("depth")) {
+                aideResponse = "Recursion is like exploring a maze. We keep going deeper until we hit a dead end (base case), then we trace our steps back. Where are we in the 'maze' right now?";
+            } else if (q.includes("tree") || q.includes("left") || q.includes("right")) {
+                aideResponse = "In a binary tree, each node is the root of its own subtree. By going left, we are solving a smaller version of the problem for the left side. What do you expect to find there?";
+            }
 
         get().addChatMessage({
             role: 'aide',
@@ -212,12 +241,10 @@ export const useGameStore = create<GameStore>((set, get) => ({
             target: 9
         };
 
-        // If it's a linked list problem, we provide 'head'
+        // Problem-specific code injection
         if (currentProblem.id === 'reverse-linked-list') {
-            // Helper to build a linked list from array inside the worker context
             const listData = get().visualization.array;
             params.listData = listData;
-            // Inject helper to build list in worker
             code = `
                 function ListNode(val, next) {
                     this.val = val;
@@ -234,6 +261,18 @@ export const useGameStore = create<GameStore>((set, get) => ({
                     return head;
                 }
                 const head = buildList(listData);
+                ${code}
+            `;
+        } else if (currentProblem.id === 'binary-tree-inorder') {
+            const treeData = get().visualization.tree;
+            params.treeData = treeData;
+            code = `
+                function TreeNode(val, left, right) {
+                    this.val = val;
+                    this.left = left || null;
+                    this.right = right || null;
+                }
+                const head = treeData; 
                 ${code}
             `;
         }

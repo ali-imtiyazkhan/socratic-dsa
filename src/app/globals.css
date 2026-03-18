@@ -15,14 +15,18 @@
 }
 
 :root {
-  --background: #050505;
-  --foreground: #f8fafc;
-  --border: #1e293b;
-  --input: #1e293b;
-  --ring: #6366f1;
-  --primary: #6366f1;
-  --secondary: #1e293b;
-  --accent: #818cf8;
+  --background: #09090b;
+  --foreground: #fafafa;
+  --border: #18181b;
+  --input: #18181b;
+  --ring: #3b82f6;
+  --primary: #3b82f6;
+  --secondary: #18181b;
+  --accent: #60a5fa;
+  
+  --card-bg: #121214;
+  --glass-bg: rgba(9, 9, 11, 0.8);
+  --glass-border: rgba(39, 39, 42, 0.5);
 }
 
 body {
@@ -31,6 +35,23 @@ body {
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.03) 0, transparent 50%),
+    radial-gradient(at 100% 0%, rgba(147, 51, 234, 0.03) 0, transparent 50%);
+  background-attachment: fixed;
+}
+
+.glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid var(--glass-border);
+}
+
+.panel-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
 }
 
 pre, code {

@@ -29,7 +29,7 @@ export default function CodeEditor() {
           },
         ]
       );
-      
+
       // Scroll to the active line if it's not visible
       editorRef.current.revealLineInCenterIfOutsideViewport(activeLine);
     } else if (editorRef.current && activeLine === null) {
@@ -49,11 +49,11 @@ export default function CodeEditor() {
     <div className="flex flex-col h-full bg-zinc-900 rounded-xl overflow-hidden border border-zinc-800 shadow-xl transition-all duration-300">
       <div className="flex items-center justify-between px-4 py-2 bg-zinc-800/50 border-b border-zinc-800">
         <div className="flex gap-2">
-            <div className="w-3 h-3 rounded-full bg-red-400/80" />
-            <div className="w-3 h-3 rounded-full bg-amber-400/80" />
-            <div className="w-3 h-3 rounded-full bg-emerald-400/80" />
+          <div className="w-3 h-3 rounded-full bg-red-400/80" />
+          <div className="w-3 h-3 rounded-full bg-amber-400/80" />
+          <div className="w-3 h-3 rounded-full bg-emerald-400/80" />
         </div>
-        <button 
+        <button
           onClick={() => {
             const code = editorRef.current?.getValue();
             runSimulation(code);
