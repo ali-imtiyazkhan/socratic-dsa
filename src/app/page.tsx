@@ -21,12 +21,12 @@ for (let i = 0; i < nums.length; i++) {
         // Update Socratic Aide and Pointers!
         step(\`Checking if \${nums[i]} + \${nums[j]} = \${target}\`, 
              "We are comparing the current sum with the target.",
-             { i, j });
+             { i, j }, 5); // Line 5: step call
         
         console.log(\`Searching: index[\${i}]=\${nums[i]}, index[\${j}]=\${nums[j]}, sum=\${nums[i] + nums[j]}\`);
 
         if (nums[i] + nums[j] === target) {
-            step("Found it!", "Final result reached.", { i, j });
+            step("Found it!", "Final result reached.", { i, j }, 12); // Line 12: found it
             return [i, j];
         }
     }
@@ -47,7 +47,7 @@ while (curr !== null) {
     
     step(\`Reversing node with value \${curr.val}\`, 
          "Point the current node's 'next' to the previous node.", 
-         { prev, curr });
+         { prev, curr }, 9); // Line 9: step inside loop
     
     console.log(\`Reversing: curr value is \${curr.val}, prev is \${prev ? prev.val : 'NULL'}\`);
 
@@ -57,7 +57,7 @@ while (curr !== null) {
     curr = nextTemp;
 }
 
-step("Finished reversing!", "The list is now reversed.", { prev, curr });
+step("Finished reversing!", "The list is now reversed.", { prev, curr }, 21); // Line 21: final step
 return prev;`
   }
 ];
@@ -66,7 +66,7 @@ export default function Home() {
   const { setProblem, updateVisualization, currentProblem } = useGameStore();
 
   useEffect(() => {
-    // Initial setup with Two Sum
+  
     setProblem(problems[0]);
     updateVisualization({ 
         array: [2, 7, 11, 15],

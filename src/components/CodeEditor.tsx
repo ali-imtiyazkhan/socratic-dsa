@@ -6,8 +6,36 @@ import { useGameStore } from '../store/useGameStore';
 import { Play } from 'lucide-react';
 
 export default function CodeEditor() {
-  const { currentProblem, runSimulation, isSimulating } = useGameStore();
+  const { currentProblem, runSimulation, isSimulating, activeLine } = useGameStore();
   const editorRef = React.useRef<any>(null);
+  const decorationsRef = React.useRef<string[]>([]);
+
+  function handleEditorDidMount(editor: any) {
+    editorRef.current = editor;
+  }
+
+  React.useEffect(() => {
+    if (editorRef.current && activeLine !== null) {
+      decorationsRef.current = editorRef.current.deltaDecorations(
+        decorationsRef.current,
+        [
+          {
+            range: { startLineNumber: activeLine, startColumn: 1, endLineNumber: activeLine, endColumn: 1 },
+            options: {
+              isWholeLine: true,
+              className: 'active-line-highlight',
+              glyphMarginClassName: 'active-line-glyph',
+            },
+          },
+        ]
+      );
+      
+      // Scroll to the active line if it's not visible
+      editorRef.current.revealLineInCenterIfOutsideViewport(activeLine);
+    } else if (editorRef.current && activeLine === null) {
+      decorationsRef.current = editorRef.current.deltaDecorations(decorationsRef.current, []);
+    }
+  }, [activeLine]);
 
   if (!currentProblem) {
     return (
@@ -15,10 +43,6 @@ export default function CodeEditor() {
         // Start a problem to begin coding.
       </div>
     );
-  }
-
-  function handleEditorDidMount(editor: any) {
-    editorRef.current = editor;
   }
 
   return (
@@ -57,8 +81,21 @@ export default function CodeEditor() {
             automaticLayout: true,
             padding: { top: 16, bottom: 16 },
             fontFamily: "'JetBrains Mono', 'Fira Code', monospace",
+            glyphMargin: true,
           }}
         />
+        <style jsx global>{`
+          .active-line-highlight {
+            background-color: rgba(59, 130, 246, 0.15) !important;
+            border-left: 3px solid #3b82f6 !important;
+          }
+          .active-line-glyph {
+            background-color: #3b82f6;
+            margin-left: 5px;
+            width: 4px !important;
+            border-radius: 2px;
+          }
+        `}</style>
       </div>
     </div>
   );
