@@ -16,7 +16,7 @@ export default function ProblemPanel() {
   }
 
   return (
-    <div className="flex flex-col gap-6 p-8 bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 shadow-sm h-full overflow-y-auto custom-scrollbar transition-colors duration-200">
+    <div className="flex flex-col gap-6 p-8 panel-card rounded-2xl shadow-xl h-full overflow-y-auto custom-scrollbar transition-all duration-300">
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <h2 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50 flex items-center gap-2">

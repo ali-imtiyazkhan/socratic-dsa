@@ -7,7 +7,7 @@ import CodeEditor from '../components/CodeEditor';
 import Visualizer from '../components/Visualizer';
 import SocraticPanel from '../components/SocraticPanel';
 import Terminal from '../components/Terminal';
-import { Layout, BrainCircuit, Terminal as TerminalIcon, Eye, Book } from 'lucide-react';
+import { Layout, BrainCircuit, Terminal as TerminalIcon, Eye, Book, Play, User } from 'lucide-react';
 
 const problems: Problem[] = [
   {
@@ -59,6 +59,32 @@ while (curr !== null) {
 
 step("Finished reversing!", "The list is now reversed.", { prev, curr }, 21); // Line 21: final step
 return prev;`
+  },
+  {
+    id: 'binary-tree-inorder',
+    title: 'Binary Tree Inorder Traversal',
+    difficulty: 'Easy',
+    description: 'Given the root of a binary tree, return the inorder traversal of its nodes values.',
+    initialCode: `function inorder(node) {
+    if (!node) return;
+    
+    step(\`Moving left from node \${node.val}\`, 
+         "Check if there is a left subtree to traverse.", 
+         { node }, 4);
+    inorder(node.left);
+    
+    step(\`Processing node \${node.val}\`, 
+         "Visit the current node and collect its value.", 
+         { node }, 8);
+    console.log(\`Visited node: \${node.val}\`);
+    
+    step(\`Moving right from node \${node.val}\`, 
+         "Check if there is a right subtree to traverse.", 
+         { node }, 12);
+    inorder(node.right);
+}
+
+inorder(head);`
   }
 ];
 
@@ -78,78 +104,102 @@ export default function Home() {
   return (
     <div className="flex flex-col h-screen bg-zinc-50 dark:bg-black text-zinc-900 dark:text-zinc-100 overflow-hidden font-sans">
       {/* Header */}
-      <header className="h-14 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between px-6 bg-white dark:bg-zinc-950 z-10">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white shadow-lg shadow-blue-500/20">
-            <BrainCircuit size={18} />
+      <header className="h-16 border-b border-zinc-800/50 flex items-center justify-between px-8 bg-zinc-950/50 backdrop-blur-md z-20">
+        <div className="flex items-center gap-4">
+          <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-blue-500/20">
+            <BrainCircuit size={22} />
           </div>
-          <h1 className="text-xl font-bold tracking-tight">
-            Socratic<span className="text-blue-600">DSA</span>
-          </h1>
+          <div>
+            <h1 className="text-lg font-bold tracking-tight leading-none">
+              Socratic<span className="text-blue-600">DSA</span>
+            </h1>
+            <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">Mastering Algorithms</span>
+          </div>
         </div>
         
-        <div className="flex items-center gap-4">
-          <select 
-            className="bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-md px-3 py-1.5 text-sm font-medium outline-none focus:ring-2 focus:ring-blue-500/20 transition-all"
-            onChange={(e) => {
-                const p = problems.find(prob => prob.id === e.target.value);
-                if (p) setProblem(p);
+        <div className="flex items-center gap-6">
+          <div className="flex items-center gap-3 bg-zinc-900/50 border border-zinc-800/50 rounded-xl px-4 py-1.5">
+            <span className="text-[10px] font-black text-zinc-500 uppercase tracking-tighter">Current Problem</span>
+            <select 
+                className="bg-transparent border-none text-sm font-bold outline-none focus:ring-0 cursor-pointer text-zinc-100"
+                onChange={(e) => {
+                    const p = problems.find(prob => prob.id === e.target.value);
+                    if (p) setProblem(p);
+                }}
+                value={currentProblem?.id || ''}
+            >
+                {problems.map(p => (
+                <option key={p.id} value={p.id} className="bg-zinc-900">{p.title}</option>
+                ))}
+            </select>
+          </div>
+
+          <button
+            onClick={() => {
+                // In a real app we'd trigger the editor's run logic. 
+                // For now, we'll assume the store handles the state or trigger a global run.
+                // We'll keep the actual run logic inside the Editor but maybe add a shortcut here.
             }}
-            value={currentProblem?.id || ''}
+            className="hidden md:flex items-center gap-2 px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-bold transition-all shadow-lg shadow-blue-500/10 active:scale-95"
           >
-            {problems.map(p => (
-              <option key={p.id} value={p.id}>{p.title}</option>
-            ))}
-          </select>
-          <div className="w-8 h-8 rounded-full bg-zinc-200 dark:bg-zinc-800 flex items-center justify-center">
-            <span className="text-xs font-bold">ME</span>
+            <Play size={14} fill="currentColor" /> Run Simulation
+          </button>
+          
+          <div className="w-10 h-10 rounded-xl bg-zinc-900 border border-zinc-800/50 flex items-center justify-center text-zinc-400">
+            <User size={20} />
           </div>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 flex overflow-hidden p-4 gap-4">
-        {/* Left: Problem Description */}
-        <section className="w-1/4 flex flex-col gap-2">
-            <div className="flex items-center gap-2 px-2 text-zinc-500 text-xs font-bold uppercase tracking-widest">
-                <Book size={14} /> Problem
+      <main className="flex-1 flex overflow-hidden p-6 gap-6">
+        {/* Column 1: Problem Definition (22%) */}
+        <div className="w-[22%] flex flex-col min-w-[280px]">
+            <div className="flex items-center gap-2 mb-3 px-1 text-zinc-500 text-[10px] font-black uppercase tracking-[0.2em]">
+                <Book size={12} className="text-blue-500" /> Specification
             </div>
-            <ProblemPanel />
-        </section>
+            <div className="flex-1 overflow-hidden">
+                <ProblemPanel />
+            </div>
+        </div>
 
-        {/* Middle: Code & Visualizer */}
-        <section className="flex-1 flex flex-col gap-4 overflow-hidden">
-            <div className="flex-1 flex flex-col gap-2 min-h-0">
-                <div className="flex items-center gap-2 px-2 text-zinc-500 text-xs font-bold uppercase tracking-widest">
-                    <TerminalIcon size={14} /> Editor
+        {/* Column 2: Visualization & Code (48%) */}
+        <div className="flex-1 flex flex-col gap-6 min-w-0">
+            {/* Visualizer (Hero) */}
+            <div className="h-[55%] flex flex-col min-h-0">
+                <div className="flex items-center gap-2 mb-3 px-1 text-zinc-500 text-[10px] font-black uppercase tracking-[0.2em]">
+                    <Eye size={12} className="text-blue-500" /> Live Execution
                 </div>
-                <CodeEditor />
-            </div>
-            
-            <div className="h-[450px] flex flex-col gap-4 shrink-0">
-                <div className="flex-1 flex flex-col gap-2 min-h-0">
-                    <div className="flex items-center gap-2 px-2 text-zinc-500 text-xs font-bold uppercase tracking-widest">
-                        <Eye size={14} /> Visualization
-                    </div>
+                <div className="flex-1 overflow-hidden">
                     <Visualizer />
                 </div>
-                
-                <div className="h-40 flex flex-col gap-2 shrink-0">
-                    <div className="flex items-center gap-2 px-2 text-zinc-500 text-xs font-bold uppercase tracking-widest">
-                        <TerminalIcon size={14} /> Output
+            </div>
+            
+            {/* Editor Workspace */}
+            <div className="flex-1 flex flex-col min-h-0">
+                <div className="flex items-center gap-2 mb-3 px-1 text-zinc-500 text-[10px] font-black uppercase tracking-[0.2em]">
+                    <TerminalIcon size={12} className="text-blue-500" /> Solution Implementation
+                </div>
+                <div className="flex-1 flex flex-col min-h-0 gap-4">
+                    <div className="flex-1 overflow-hidden rounded-2xl border border-zinc-800/50 shadow-xl bg-zinc-900/50">
+                        <CodeEditor />
                     </div>
-                    <Terminal />
+                    <div className="h-32 rounded-2xl border border-zinc-800/50 bg-black/40 overflow-hidden shrink-0">
+                        <Terminal />
+                    </div>
                 </div>
             </div>
-        </section>
+        </div>
 
-        {/* Right: Socratic Aide */}
-        <section className="w-1/4 flex flex-col gap-2">
-            <div className="flex items-center gap-2 px-2 text-zinc-500 text-xs font-bold uppercase tracking-widest">
-                <Layout size={14} /> Socratic Aide
+        {/* Column 3: Socratic Aide (30%) */}
+        <div className="w-[30%] flex flex-col min-w-[340px]">
+            <div className="flex items-center gap-2 mb-3 px-1 text-zinc-500 text-[10px] font-black uppercase tracking-[0.2em]">
+                <Layout size={12} className="text-blue-500" /> Socratic Guidance
             </div>
-            <SocraticPanel />
-        </section>
+            <div className="flex-1 overflow-hidden">
+                <SocraticPanel />
+            </div>
+        </div>
       </main>
 
       {/* Glassmorphic overlay for style */}

@@ -15,7 +15,7 @@ export default function Terminal() {
   }, [logs]);
 
   return (
-    <div className="flex flex-col h-full bg-zinc-950 rounded-xl border border-zinc-800 shadow-2xl overflow-hidden font-mono text-sm transition-all duration-300">
+    <div className="flex-1 flex flex-col panel-card rounded-2xl shadow-xl overflow-hidden font-mono text-sm transition-all duration-300">
       <div className="flex items-center gap-2 px-4 py-2 bg-zinc-900 border-b border-zinc-800 text-zinc-400">
         <TerminalIcon size={14} />
         <span className="text-xs font-bold uppercase tracking-widest">Output Console</span>

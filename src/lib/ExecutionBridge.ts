@@ -50,10 +50,20 @@ export class ExecutionBridge {
                         self.postMessage({ type: 'STEP', doing, next, pointers, line });
                     };
 
+                    const call = (nodeId) => {
+                        self.postMessage({ type: 'CALL', nodeId });
+                    };
+
+                    const ret = (nodeId) => {
+                        self.postMessage({ type: 'RETURN', nodeId });
+                    };
+
                     const context = {
                         ...params,
                         nums: createInstrumentedArray(params.nums || [], 'nums'),
                         step,
+                        call,
+                        return: ret,
                         console: {
                             log: (...args) => self.postMessage({ type: 'LOG', value: args.join(' ') })
                         }
@@ -90,6 +100,13 @@ export class ExecutionBridge {
                         });
                         if (data.pointers) {
                             store.updateVisualization({ pointers: data.pointers });
+                            // Auto-highlight nodes if they are in pointers
+                            const nodeIds = Object.values(data.pointers)
+                                .filter((p: any) => p && typeof p === 'object' && p.id)
+                                .map((p: any) => p.id);
+                            if (nodeIds.length > 0) {
+                                store.updateVisualization({ highlightedNodes: nodeIds });
+                            }
                         }
                         await new Promise(r => setTimeout(r, 1000)); // Pacing
                         break;
@@ -97,6 +114,16 @@ export class ExecutionBridge {
                     case 'WRITE':
                         store.updateVisualization({ highlightedIndices: [data.index] });
                         await new Promise(r => setTimeout(r, 500)); // Pacing
+                        break;
+                    case 'CALL':
+                        store.updateVisualization({ highlightedNodes: [...store.visualization.highlightedNodes, data.nodeId] });
+                        await new Promise(r => setTimeout(r, 800));
+                        break;
+                    case 'RETURN':
+                        store.updateVisualization({ 
+                            highlightedNodes: store.visualization.highlightedNodes.filter(id => id !== data.nodeId) 
+                        });
+                        await new Promise(r => setTimeout(r, 500));
                         break;
                     case 'LOG':
                         store.addLog(data.value);
