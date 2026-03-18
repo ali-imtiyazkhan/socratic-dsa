@@ -46,8 +46,8 @@ export class ExecutionBridge {
                         });
                     };
 
-                    const step = (doing, next, pointers) => {
-                        self.postMessage({ type: 'STEP', doing, next, pointers });
+                    const step = (doing, next, pointers, line) => {
+                        self.postMessage({ type: 'STEP', doing, next, pointers, line });
                     };
 
                     const context = {
@@ -83,7 +83,11 @@ export class ExecutionBridge {
 
                 switch (type) {
                     case 'STEP':
-                        store.setSocraticStep({ doing: data.doing, next: data.next });
+                        store.setSocraticStep({ 
+                            doing: data.doing, 
+                            next: data.next, 
+                            line: data.line 
+                        });
                         if (data.pointers) {
                             store.updateVisualization({ pointers: data.pointers });
                         }

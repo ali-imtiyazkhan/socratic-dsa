@@ -17,6 +17,7 @@ export default function Visualizer() {
           {isLinkedList && (
             <div className="relative flex items-center">
               <motion.div
+                layout
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
                 className="w-16 h-16 rounded-lg border-2 border-dashed border-zinc-300 dark:border-zinc-800 flex items-center justify-center text-xs font-mono font-bold text-zinc-400 dark:text-zinc-600 relative"
@@ -27,6 +28,7 @@ export default function Visualizer() {
                   {Object.entries(pointers).filter(([_, val]) => val === null).map(([name]) => (
                     <motion.div
                       key={name}
+                      layout
                       initial={{ y: -10, opacity: 0 }}
                       animate={{ y: 0, opacity: 1 }}
                       className="flex flex-col items-center"
@@ -62,6 +64,7 @@ export default function Visualizer() {
             return (
               <div key={`${index}-${value}`} className="relative flex items-center">
                 <motion.div
+                  layout
                   initial={{ opacity: 0, scale: 0.8, y: 20 }}
                   animate={{ 
                       opacity: 1, 
@@ -70,7 +73,7 @@ export default function Visualizer() {
                       backgroundColor: isHighlighted ? '#3b82f6' : 'transparent' 
                   }}
                   exit={{ opacity: 0, scale: 0.8, y: -20 }}
-                  transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                  transition={{ type: "spring", stiffness: 500, damping: 30, mass: 1 }}
                   className={`w-16 h-16 rounded-full shadow-sm border transition-colors ${
                     isHighlighted 
                       ? 'border-blue-500 text-white shadow-blue-500/20 bg-blue-500' 
@@ -91,6 +94,7 @@ export default function Visualizer() {
                         {activePointers.map(([name, _], pIdx) => (
                             <motion.div
                                 key={name}
+                                layout
                                 initial={{ y: -10, opacity: 0 }}
                                 animate={{ y: 0, opacity: 1 }}
                                 exit={{ y: 10, opacity: 0 }}

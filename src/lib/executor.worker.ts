@@ -37,8 +37,8 @@ self.onmessage = (e: MessageEvent) => {
         };
 
         // Helper to notify the main thread of a logical step
-        const step = (doing: string, next: string) => {
-            self.postMessage({ type: 'STEP', doing, next });
+        const step = (doing: string, next: string, status?: any, line?: number) => {
+            self.postMessage({ type: 'STEP', doing, next, status, line });
         };
 
         // Inject helpers into the global scope of the worker
